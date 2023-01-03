@@ -1,0 +1,205 @@
+# Welcome to Serverless!
+#
+# This file is the main config file for your service.
+# It's very minimal at this point and uses default values.
+# You can always add more config options for more control.
+# We've included some commented out config examples here.
+# Just uncomment any of them to get that config option.
+#
+# For full config options, check the docs:
+#    docs.serverless.com
+#
+# Happy Coding!
+
+service: hand-recorder-backend
+# app and org for use with dashboard.serverless.com
+#app: your-app-name
+#org: your-org-name
+
+# You can pin your service to only deploy with a specific Serverless version
+# Check out our docs for more details
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: python3.8
+  stage: ${opt:stage, "dev"}
+  region: ${opt:region, "us-east-1"}
+  memorySize: 128
+  timeout: 10
+  environment:
+    HAND_TRACKER_TABLE: ${self:service}-${opt:stage, self:provider.stage}-hand-tracker
+    SESSION_TABLE: ${self:service}-${opt:stage, self:provider.stage}-session
+    USER_TABLE: ${self:service}-${opt:stage, self:provider.stage}-user
+    REGION: ${opt:region, self:provider.region}
+  iam:
+    role: 
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+          Resource: "*"
+
+functions:
+  createHandTracker:
+    handler: lambdas/hand-tracker/create.handler
+    name: ${self:service}-${self:provider.stage}-createHandTracker
+    events:
+      - httpApi:
+          path: /hand-tracker
+          method: post
+          cors: true
+  getAllHandTracker:
+    handler: lambdas/hand-tracker/getAll.handler
+    name: ${self:service}-${self:provider.stage}-getAllHandTracker
+    events:
+      - httpApi:
+          path: /hand-tracker
+          method: get
+          cors: true
+  getHandTrackerById:
+    handler: lambdas/hand-tracker/getById.handler
+    name: ${self:service}-${self:provider.stage}-getHandTrackerById
+    events:
+      - httpApi:
+          path: /hand-tracker/{id}
+          method: get
+          cors: true
+  getHandTrackerBySession:
+    handler: lambdas/hand-tracker/getBySessionId.handler
+    name: ${self:service}-${self:provider.stage}-getHandTrackerBySession
+    events:
+      - httpApi:
+          path: /hand-tracker/session/{sessionId}
+          method: get
+          cors: true
+
+  createSession:
+    handler: lambdas/session/create.handler
+    name: ${self:service}-${self:provider.stage}-createSession
+    events:
+      - httpApi:
+          path: /session
+          method: post
+          cors: true
+  getSessionById:
+    handler: lambdas/session/getById.handler
+    name: ${self:service}-${self:provider.stage}-getSessionById
+    events:
+      - httpApi:
+          path: /session/{id}
+          method: get
+          cors: true
+  getSessionByUser:
+    handler: lambdas/session/getBySessionId.handler
+    name: ${self:service}-${self:provider.stage}-getSessionByUser
+    events:
+      - httpApi:
+          path: /session/user/{userId}
+          method: get
+          cors: true
+
+  createUser:
+    handler: lambdas/user/create.handler
+    name: ${self:service}-${self:provider.stage}-createUser
+    events:
+      - httpApi:
+          path: /user
+          method: post
+          cors: true
+  getUserById:
+    handler: lambdas/user/getById.handler
+    name: ${self:service}-${self:provider.stage}-getUserById
+    events:
+      - httpApi:
+          path: /user/{id}
+          method: get
+          cors: true
+  getUserByEmail:
+    handler: lambdas/session/getByEmail.handler
+    name: ${self:service}-${self:provider.stage}-getUserByEmail
+    events:
+      - httpApi:
+          path: /user
+          method: get
+          cors: true
+
+resources:
+ Resources:
+   HandTrackerTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: ${self:provider.environment.HAND_TRACKER_TABLE}
+      AttributeDefinitions:
+        -
+          AttributeName: id
+          AttributeType: S
+        -
+          AttributeName: sessionId
+          AttributeType: S
+      KeySchema:
+        -
+          AttributeName: id
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: handTracker_session-index
+          KeySchema:
+            - AttributeName: sessionId
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+      BillingMode: PAY_PER_REQUEST
+   SessionTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: ${self:provider.environment.SESSION_TABLE}
+      AttributeDefinitions:
+        -
+          AttributeName: id
+          AttributeType: S
+        -
+          AttributeName: userId
+          AttributeType: S
+      KeySchema:
+        -
+          AttributeName: id
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: session_userId-index
+          KeySchema:
+            - AttributeName: userId
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+      BillingMode: PAY_PER_REQUEST
+   UserTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: ${self:provider.environment.USER_TABLE}
+      AttributeDefinitions:
+        -
+          AttributeName: id
+          AttributeType: S
+        -
+          AttributeName: email
+          AttributeType: S
+      KeySchema:
+        -
+          AttributeName: id
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: user_email-index
+          KeySchema:
+            - AttributeName: email
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+      BillingMode: PAY_PER_REQUEST
+
+plugins:
+  - serverless-python-requirements
