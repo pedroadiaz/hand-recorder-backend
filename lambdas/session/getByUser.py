@@ -3,6 +3,9 @@ import logging
 import os
 import boto3
 
+from boto3.dynamodb.conditions import Key
+from utils.decimalEncoder import DecimalEncoder
+
 dynamodb = boto3.resource('dynamodb', os.environ['REGION'])
 
 def handler(event, context):
@@ -10,7 +13,12 @@ def handler(event, context):
 
     table = dynamodb.Table(os.environ['SESSION_TABLE'])
     
-    result = table.query(KeyConditionExpression=Key('userId').eq(sessionId))
+    result = table.query(
+        IndexName='session_userId-index',
+        KeyConditionExpression=Key('userId').eq(sessionId)
+        )
+
+    print(result["Items"])
 
     response = {
         'headers': {
@@ -19,7 +27,7 @@ def handler(event, context):
             "content-type":"application/json",
         },
         'statusCode': 200,
-        'body': json.dumps(result)
+        'body': json.dumps(result["Items"], cls=DecimalEncoder)
     }
 
     return response

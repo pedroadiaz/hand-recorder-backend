@@ -14,8 +14,13 @@ def handler(event, context):
 
     table = dynamodb.Table(os.environ['USER_TABLE'])
 
+    id = str(uuid.uuid4())
+
+    if "id" in data:
+        id = data["id"]
+
     item = {
-        'id': str(uuid.uuid4()),
+        'id': id,
         'email': data['email'],
         'created': timestamp
     }

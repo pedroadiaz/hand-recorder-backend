@@ -14,20 +14,30 @@ def handler(event, context):
 
     table = dynamodb.Table(os.environ['HAND_TRACKER_TABLE'])
 
+    id = str(uuid.uuid4())
+
+    if "id" in data:
+        id = data["id"]
+
     item = {
-        'id': str(uuid.uuid4()),
+        'id': id,
         'sessionId': data['sessionid'],
         'stackSize': data['stackSize'],
         'position': data['position'],
         'holecards': data['holeCards'],
         'preFlopNotes': data['preFlopNotes'],
+        'foldedPreflop': data['foldedPreflop'],
         'flopCards': data['flopCards'],
         'flopNotes': data['flopNotes'],
+        'foldedFlop': data['foldedFlop'],
         'turnCard': data['turnCard'],
         'turnNotes': data['turnNotes'],
+        'foldedTurn': data['foldedTurn'],
         'riverCard': data['riverCard'],
         'riverNotes': data['riverNotes'],
+        'foldedRiver': data['foldedRiver'],
         'otherNotes': data['otherNotes'],
+        'wonHand': data['wonHand'],
         'created': timestamp
     }
 

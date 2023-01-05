@@ -14,13 +14,19 @@ def handler(event, context):
 
     table = dynamodb.Table(os.environ['SESSION_TABLE'])
 
+    id = str(uuid.uuid4())
+
+    if "id" in data:
+        id = data["id"]
+
     item = {
-        'id': str(uuid.uuid4()),
+        'id': id,
         'userId': data['userId'],
         'stackSize': data['stackSize'],
         'location': data['location'],
         'smallBlind': data['smallBlind'],
         'bigBlind': data['bigBlind'],
+        'cashOutAmount': data['cashOutAmount'],
         'created': timestamp
     }
 
