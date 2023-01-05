@@ -1,10 +1,10 @@
-import json
 import logging
 import os
 from datetime import datetime
 import uuid
 import boto3
 
+from utils.createResponse import CreateResponse
 dynamodb = boto3.resource('dynamodb', region_name=os.environ['REGION'])
 
 def handler(event, context):
@@ -31,11 +31,13 @@ def handler(event, context):
         'headers': {
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+            "Access-Control-Allow-Credentials": True,
+            "Access-Control-Allow-Headers" : "*",
             "content-type":"application/json",
         },
         'statusCode': 200,
         'body': json.dumps(item)
     }
 
-    return response
+    return CreateResponse(item)
     

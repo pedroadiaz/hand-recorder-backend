@@ -7,6 +7,8 @@ import boto3
 
 dynamodb = boto3.resource('dynamodb')
 
+from utils.createResponse import CreateResponse
+
 def handler(event, context):
     data = json.loads(event["body"])
 
@@ -43,15 +45,6 @@ def handler(event, context):
 
     table.put_item(Item=item)
 
-    response = {
-        'headers': {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-            "content-type":"application/json",
-        },
-        'statusCode': 200,
-        'body': json.dumps(item)
-    }
 
-    return response
+    return CreateResponse(item)
     
