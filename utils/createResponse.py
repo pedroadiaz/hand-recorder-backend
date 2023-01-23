@@ -6,7 +6,6 @@ def CreateResponse(body):
         'headers': {
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-            "Access-Control-Allow-Credentials": True,
             "Access-Control-Allow-Headers" : "*",
             "content-type":"application/json",
         },

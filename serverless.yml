@@ -27,8 +27,6 @@ provider:
   region: ${opt:region, "us-east-1"}
   memorySize: 128
   timeout: 10
-  httpApi:
-    cors: true
   environment:
     HAND_TRACKER_TABLE: ${self:service}-${opt:stage, self:provider.stage}-hand-tracker
     SESSION_TABLE: ${self:service}-${opt:stage, self:provider.stage}-session
@@ -52,75 +50,85 @@ functions:
     handler: lambdas/hand-tracker/create.handler
     name: ${self:service}-${self:provider.stage}-createHandTracker
     events:
-      - httpApi:
+      - http:
           path: /hand-tracker
           method: post
+          cors: true
   getAllHandTracker:
     handler: lambdas/hand-tracker/getAll.handler
     name: ${self:service}-${self:provider.stage}-getAllHandTracker
     events:
-      - httpApi:
+      - http:
           path: /hand-tracker
           method: get
+          cors: true
   getHandTrackerBySession:
     handler: lambdas/hand-tracker/getBySessionId.handler
     name: ${self:service}-${self:provider.stage}-getHandTrackerBySession
     events:
-      - httpApi:
+      - http:
           path: /hand-tracker/session/{sessionId}
           method: get
+          cors: true
   getHandTrackerById:
     handler: lambdas/hand-tracker/getById.handler
     name: ${self:service}-${self:provider.stage}-getHandTrackerById
     events:
-      - httpApi:
+      - http:
           path: /hand-tracker/{id}
           method: get
+          cors: true
 
   createSession:
     handler: lambdas/session/create.handler
     name: ${self:service}-${self:provider.stage}-createSession
     events:
-      - httpApi:
+      - http:
           path: /session
           method: post
+          cors: true
   getSessionById:
     handler: lambdas/session/getById.handler
     name: ${self:service}-${self:provider.stage}-getSessionById
     events:
-      - httpApi:
+      - http:
           path: /session/{id}
           method: get
+          cors: true
   getSessionByUser:
     handler: lambdas/session/getByUser.handler
     name: ${self:service}-${self:provider.stage}-getSessionByUser
     events:
-      - httpApi:
+      - http:
           path: /session/user/{userId}
           method: get
+          cors: true
 
   createUser:
     handler: lambdas/user/create.handler
     name: ${self:service}-${self:provider.stage}-createUser
     events:
-      - httpApi:
+      - http:
           path: /user
           method: post
+          cors: true
   getUserById:
     handler: lambdas/user/getById.handler
     name: ${self:service}-${self:provider.stage}-getUserById
     events:
-      - httpApi:
+      - http:
           path: /user/{id}
           method: get
+          cors: true
   getUserByEmail:
     handler: lambdas/user/getByEmail.handler
     name: ${self:service}-${self:provider.stage}-getUserByEmail
     events:
-      - httpApi:
+      - http:
           path: /user
           method: get
-          
+          cors: true
+
 resources:
  Resources:
    HandTrackerTable:
